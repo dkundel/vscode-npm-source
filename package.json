@@ -1,7 +1,7 @@
 {
   "displayName": "View Node Package",
   "name": "vscode-npm-source",
-  "description": "Select an Node package that you reference in your code and open the repository / documentation of it straight in your browser.",
+  "description": "Open a Node package repository/documentation straight from Code.",
   "version": "0.0.1",
   "icon": "images/logo-300x.png",
   "galleryBanner": {
