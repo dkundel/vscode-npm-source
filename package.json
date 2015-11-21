@@ -1,9 +1,14 @@
 {
-  "displayName": "View NPM Source",
+  "displayName": "View Node Package",
   "name": "vscode-npm-source",
-  "description": "Select an NPM package that you reference in your code and open the repository of it straight in your browser.",
+  "description": "Select an Node package that you reference in your code and open the repository / documentation of it straight in your browser.",
   "version": "0.0.1",
-  "publisher": "Dominik Kundel",
+  "icon": "images/logo-300x.png",
+  "galleryBanner": {
+    "color": "#919191",
+    "theme": "dark"
+  },
+  "publisher": "dkundel",
   "license": "MIT",
   "engines": {
     "vscode": "^0.10.1"
@@ -11,6 +16,13 @@
   "categories": [
     "Other"
   ],
+  "bugs": {
+    "url": "https://github.com/dkundel/vscode-npm-source/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dkundel/vscode-npm-source.git"    
+  },
   "activationEvents": [
     "onCommand:extension.openPackageSource"
   ],
@@ -19,7 +31,7 @@
     "commands": [
       {
         "command": "extension.openPackageSource",
-        "title": "View NPM Source"
+        "title": "View Node Package Source"
       }
     ]
   },
