@@ -1,0 +1,37 @@
+{
+  "displayName": "View NPM Source",
+  "name": "vscode-npm-source",
+  "description": "Select an NPM package that you reference in your code and open the repository of it straight in your browser.",
+  "version": "0.0.1",
+  "publisher": "Dominik Kundel",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^0.10.1"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.openPackageSource"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.openPackageSource",
+        "title": "View NPM Source"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+  },
+  "devDependencies": {
+    "typescript": "^1.6.2",
+    "vscode": "0.10.x"
+  },
+  "dependencies": {
+    "q": "^1.4.1"
+  }
+}
