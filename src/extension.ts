@@ -64,7 +64,11 @@ export function activate(context: ExtensionContext) {
       deferred.resolve(nodeModules.getApiUrl(packageName));
     }
     
-    http.get('http://registry.npmjs.org/' + packageName, (response: http.ClientResponse) => {
+    let packageTry = packageName;
+    
+    do{
+    
+    http.get('http://registry.npmjs.org/' + packageTry, (response: http.ClientResponse) => {
       let body: string = '';
       
       response.on('data', (d) => {
@@ -83,13 +87,18 @@ export function activate(context: ExtensionContext) {
           
           url = url.substr(url.indexOf('http'));
           deferred.resolve(url);
-        } else {
-          deferred.reject('No repository found!');
         }
       });
     }).on('error', (err) => {
       deferred.reject(err.message);
     });
+    
+    sliceTo = Math.max( packageTry.lastIndexOf('/'), 0 );
+    packageTry = packageTry.slice(0, sliceTo);
+    
+    } while (packageTry);
+    
+    deferred.reject('No repository found!');
     
     return deferred.promise;
   }
