@@ -64,33 +64,42 @@ export function activate(context: ExtensionContext) {
       deferred.resolve(nodeModules.getApiUrl(packageName));
     }
     
-    http.get('http://registry.npmjs.org/' + packageName, (response: http.ClientResponse) => {
-      let body: string = '';
-      
-      response.on('data', (d) => {
-        body += d;
-      });
-      
-      response.on('end', () => {
-        const responseJson = JSON.parse(body);
-        
-        if (responseJson.repository && responseJson.repository.url) {
-          let url = responseJson.repository.url;
-          if (url.indexOf('http') === -1 ) {
-            deferred.reject('Invalid project url');
-            return;
-          }
-          
-          url = url.substr(url.indexOf('http'));
-          deferred.resolve(url);
-        } else {
-          deferred.reject('No repository found!');
-        }
-      });
-    }).on('error', (err) => {
-      deferred.reject(err.message);
-    });
+    let packageTry = packageName;
     
+    do{
+    
+      http.get('http://registry.npmjs.org/' + packageTry, (response: http.ClientResponse) => {
+        let body: string = '';
+        
+        response.on('data', (d) => {
+          body += d;
+        });
+        
+        response.on('end', () => {
+          const responseJson = JSON.parse(body);
+          
+          if (responseJson.repository && responseJson.repository.url) {
+            let url = responseJson.repository.url;
+            if (url.indexOf('http') === -1 ) {
+              deferred.reject('Invalid project url');
+              return;
+            }
+            
+            url = url.substr(url.indexOf('http'));
+            deferred.resolve(url);
+          }
+        });
+      }).on('error', (err) => {
+        deferred.reject(err.message);
+      });
+      
+      if (!packageTry) deferred.reject('No repository found!');
+
+      let sliceTo = Math.max( packageTry.lastIndexOf('/'), 0 );
+      packageTry = packageTry.slice(0, sliceTo);
+    
+    } while (packageTry);
+        
     return deferred.promise;
   }
   
