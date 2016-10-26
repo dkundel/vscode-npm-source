@@ -1,8 +1,10 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-import {ExtensionContext, commands, window, Range, QuickPickItem, QuickPickOptions} from 'vscode';
+import {ExtensionContext, commands, window, Range, QuickPickItem, QuickPickOptions, workspace} from 'vscode';
 import * as http from 'http';
 import * as Q from 'q';
+import * as path from 'path';
+import * as fs from 'fs';
 
 const exec = require('child_process').exec;
 const nodeModules = require('./node-native-modules');
@@ -63,7 +65,12 @@ export function activate(context: ExtensionContext) {
     if (nodeModules.NativeModules.indexOf(packageName) !== -1) {
       deferred.resolve(nodeModules.getApiUrl(packageName));
     }
-    
+
+    let gitUrl = getGitUrlFromPackageJson(packageName); 
+    if (gitUrl) {
+      deferred.resolve(gitUrl);
+    }
+
     let packageTry = packageName;
     
     do{
@@ -97,10 +104,40 @@ export function activate(context: ExtensionContext) {
 
       let sliceTo = Math.max( packageTry.lastIndexOf('/'), 0 );
       packageTry = packageTry.slice(0, sliceTo);
-    
+
     } while (packageTry);
         
     return deferred.promise;
+  }
+
+  function getGitUrlFromPackageJson(packageName: string): string {
+    let fileName = path.join(workspace.rootPath, 'package.json');
+		let contents = fs.readFileSync(fileName).toString();
+		let json = JSON.parse(contents);
+
+    let result = null;
+
+    if (json && json.dependencies && json.dependencies[packageName]) {
+      let packageUrl = json.dependencies[packageName];
+      if (packageUrl.indexOf('git') >= 0) {
+        result = getBrowsablePackageUrl(packageUrl);
+      }
+    }
+    return result;
+  }
+
+  function getBrowsablePackageUrl(url: string): string {
+    const regex1 = /^git\+?/g;
+    url = url.replace(regex1, '');
+    const regex2 = /(^:\/\/|^ssh:\/\/)/g;
+    url = url.replace(regex2, 'https://');
+    const regex3 = /:\/\/.*@/g;
+    url = url.replace(regex3, '://');
+    const regex4 = /:([^\/])/g;
+    url = url.replace(regex4, '/$1');
+    const regex5 = /\.git#/g;
+    url = url.replace(regex5, '/tree/');
+    return url;
   }
   
   function openUrl(url: string): void {
