@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dkundel/vscode-npm-source.git"    
+    "url": "https://github.com/dkundel/vscode-npm-source.git"
   },
   "activationEvents": [
     "onCommand:extension.openPackageSource"
@@ -31,9 +31,14 @@
     "commands": [
       {
         "command": "extension.openPackageSource",
-        "title": "View Node Package Source"
+        "title": "🔮 View Node Package Source"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [{
+        "command": "extension.openPackageSource"
+      }]
+    }
   },
   "scripts": {
     "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
