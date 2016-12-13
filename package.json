@@ -1,61 +1,65 @@
 {
-  "displayName": "View Node Package",
-  "name": "vscode-npm-source",
-  "description": "Open a Node package repository/documentation straight from Code.",
-  "version": "0.0.2",
-  "icon": "images/logo-300x.png",
-  "galleryBanner": {
-    "color": "#919191",
-    "theme": "dark"
-  },
-  "publisher": "dkundel",
-  "license": "MIT",
-  "engines": {
-    "vscode": "^0.10.1"
-  },
-  "categories": [
-    "Other"
-  ],
-  "bugs": {
-    "url": "https://github.com/dkundel/vscode-npm-source/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/dkundel/vscode-npm-source.git"
-  },
-  "activationEvents": [
-    "onCommand:extension.openPackageSource"
-  ],
-  "main": "./out/src/extension",
-  "contributes": {
-    "commands": [
-      {
-        "command": "extension.openPackageSource",
-        "title": "View Node Package Source"
-      }
+    "displayName": "View Node Package",
+    "name": "vscode-npm-source",
+    "description": "Open a Node package repository/documentation straight from Code.",
+    "version": "1.0.0",
+    "icon": "images/logo-300x.png",
+    "galleryBanner": {
+        "color": "#919191",
+        "theme": "dark"
+    },
+    "publisher": "dkundel",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^0.10.1"
+    },
+    "categories": [
+        "Other"
     ],
-    "menus": {
-      "editor/context": [{
-        "command": "extension.openPackageSource",
-        "when": "editorLangId == javascript"
-      }, {
-        "command": "extension.openPackageSource",
-        "when": "editorLangId == json"
-      }, {
-        "command": "extension.openPackageSource",
-        "when": "editorLangId == typescript"
-      }]
+    "bugs": {
+        "url": "https://github.com/dkundel/vscode-npm-source/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/dkundel/vscode-npm-source.git"
+    },
+    "activationEvents": [
+        "onCommand:extension.openPackageSource"
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.openPackageSource",
+                "title": "View Node Package Source"
+            }
+        ],
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "extension.openPackageSource",
+                    "when": "editorLangId == javascript"
+                },
+                {
+                    "command": "extension.openPackageSource",
+                    "when": "editorLangId == json"
+                },
+                {
+                    "command": "extension.openPackageSource",
+                    "when": "editorLangId == typescript"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+    },
+    "devDependencies": {
+        "typescript": "^1.6.2",
+        "vscode": "0.10.x"
+    },
+    "dependencies": {
+        "q": "^1.4.1"
     }
-  },
-  "scripts": {
-    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
-  },
-  "devDependencies": {
-    "typescript": "^1.6.2",
-    "vscode": "0.10.x"
-  },
-  "dependencies": {
-    "q": "^1.4.1"
-  }
 }

@@ -1,6 +1,6 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-import { ExtensionContext, commands, window, Range, QuickPickItem, QuickPickOptions, workspace } from 'vscode';
+import { ExtensionContext, commands, window, Range, QuickPickItem, QuickPickOptions, workspace, TextEditor } from 'vscode';
 import * as http from 'http';
 import * as Q from 'q';
 import * as path from 'path';
