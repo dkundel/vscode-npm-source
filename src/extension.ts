@@ -1,6 +1,6 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-import {ExtensionContext, commands, window, Range, QuickPickItem, QuickPickOptions} from 'vscode';
+import { ExtensionContext, commands, window, Range, QuickPickItem, QuickPickOptions } from 'vscode';
 import * as http from 'http';
 import * as Q from 'q';
 
@@ -62,42 +62,60 @@ export function activate(context: ExtensionContext) {
     }
     
     let packageTry = packageName;
-    
-    do{
-    
-      http.get('http://registry.npmjs.org/' + packageTry, (response: http.ClientResponse) => {
-        let body: string = '';
-        
-        response.on('data', (d) => {
-          body += d;
-        });
-        
-        response.on('end', () => {
-          const responseJson = JSON.parse(body);
-          
-          if (responseJson.repository && responseJson.repository.url) {
-            let url = responseJson.repository.url;
-            url = url.replace(/^git/, 'http');
-            if (url.indexOf('http') === -1 ) {
-              deferred.reject('Invalid project url');
-              return;
-            }
-            
-            url = url.substr(url.indexOf('http'));
-            deferred.resolve(url);
-          }
-        });
-      }).on('error', (err) => {
-        deferred.reject(err.message);
+
+    const determineUrlRecursively = () => {
+      return getUrlFromNpm(packageTry).then(url => {
+        if (!url) {
+          let sliceTo = Math.max(packageTry.lastIndexOf('/'), 0);
+          packageTry = packageTry.slice(0, sliceTo);
+
+          return determineUrlRecursively();
+        } else {
+          return url;
+        }
+      })
+    };
+
+    determineUrlRecursively().then(url => {
+      deferred.resolve(url);
+    }).catch(err => {
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
+  function getUrlFromNpm(packageName: string): Q.Promise<string> {
+    let deferred: Q.Deferred<string> = Q.defer<string>();
+
+    http.get('http://registry.npmjs.org/' + packageName, (response: http.ClientResponse) => {
+      let body: string = '';
+      
+      response.on('data', (d) => {
+        body += d;
       });
       
-      if (!packageTry) deferred.reject('No repository found!');
-
-      let sliceTo = Math.max( packageTry.lastIndexOf('/'), 0 );
-      packageTry = packageTry.slice(0, sliceTo);
-    
-    } while (packageTry);
+      response.on('end', () => {
+        const responseJson = JSON.parse(body);
         
+        if (responseJson.repository && responseJson.repository.url) {
+          let url = responseJson.repository.url;
+          url = url.replace(/^git/, 'http');
+          if (url.indexOf('http') === -1 ) {
+            deferred.resolve(null);
+            return;
+          }
+          
+          url = url.substr(url.indexOf('http'));
+          deferred.resolve(url);
+        } else {
+          deferred.resolve(null);
+        }
+      });
+    }).on('error', (err) => {
+      deferred.reject(err.message);
+    });
+
     return deferred.promise;
   }
   
@@ -143,6 +161,6 @@ export function activate(context: ExtensionContext) {
   function getCleanPackageName(requireStatement: string): string {
     return requireStatement.replace(/^require(\(|\s)("|')/, '').replace(/^import.*?('|")/, '').replace(/("|')\)?$/, '').replace(/('|")$/, '');
   }
-	
-	context.subscriptions.push(disposable);
+
+  context.subscriptions.push(disposable);
 }
