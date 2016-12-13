@@ -43,6 +43,8 @@ code .
 
 [Dominik Kundel](https://github.com/dkundel)
 [Orry Baram](https://github.com/orrybaram)
+[Justin Roettger](https://github.com/jlroettger)
+[daskruegge](https://github.com/daskruegge)
 
 # License
 
