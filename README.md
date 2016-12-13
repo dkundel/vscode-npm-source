@@ -42,6 +42,7 @@ code .
 # Contributors
 
 [Dominik Kundel](https://github.com/dkundel)
+[Orry Baram](https://github.com/orrybaram)
 
 # License
 
