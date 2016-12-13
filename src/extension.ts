@@ -23,16 +23,24 @@ export function activate(context: ExtensionContext) {
     } else {
       selectedText = editor.document.getText(selection);
     }
-    
-    packagesFound = selectedText.match(moduleRegEx);
-    
+
+    if (editor.document && editor.document.languageId === 'json') {
+      packagesFound = readFromPackageJson(editor, selectedText);
+    } else {
+      packagesFound = selectedText.match(moduleRegEx);
+    }
+
     if (!packagesFound) {
       selectedText = editor.document.getText(new Range(selection.start.line, 0, selection.end.line+1, 0));
       packagesFound = selectedText.match(moduleRegEx);
     }
     
     if (!packagesFound || packagesFound.length === 0) {
-      packagesFound = editor.document.getText().match(moduleRegEx);
+      if (editor.document && editor.document.languageId === 'json') {
+        packagesFound = readFromPackageJson(editor, editor.document.getText());
+      } else {
+        packagesFound = editor.document.getText().match(moduleRegEx);
+      }
     }
     
     if (packagesFound.length === 1) {
@@ -76,7 +84,11 @@ export function activate(context: ExtensionContext) {
           let sliceTo = Math.max(packageTry.lastIndexOf('/'), 0);
           packageTry = packageTry.slice(0, sliceTo);
 
-          return determineUrlRecursively();
+          if (packageTry) {
+            return determineUrlRecursively();
+          } else {
+            return null;
+          }
         } else {
           return url;
         }
@@ -107,7 +119,7 @@ export function activate(context: ExtensionContext) {
         
         if (responseJson.repository && responseJson.repository.url) {
           let url = responseJson.repository.url;
-          url = url.replace(/^git/, 'http');
+          url = getBrowsablePackageUrl(url);
           if (url.indexOf('http') === -1 ) {
             deferred.resolve(null);
             return;
@@ -122,7 +134,7 @@ export function activate(context: ExtensionContext) {
     }).on('error', (err) => {
       deferred.reject(err.message);
     });
-    
+
     return deferred.promise;
   }
 
@@ -189,6 +201,21 @@ export function activate(context: ExtensionContext) {
     });
     
     return deferred.promise;
+  }
+
+  function readFromPackageJson(editor: TextEditor, selectedText: string) {
+    let content = JSON.parse(editor.document.getText());
+    let potentialPackages = [];
+    if (content.dependencies) {
+      potentialPackages = potentialPackages.concat(Object.keys(content.dependencies));
+    }
+    if (content.devDependencies) {
+      potentialPackages = potentialPackages.concat(Object.keys(content.devDependencies));
+    }
+    if (content.peerDependencies) {
+      potentialPackages = potentialPackages.concat(Object.keys(content.peerDependencies));
+    }
+    return potentialPackages.filter(function (pkg) { return selectedText.indexOf(pkg) !== -1 });
   }
   
   function handleError(errorMessage: string): void {
