@@ -36,7 +36,14 @@
     ],
     "menus": {
       "editor/context": [{
-        "command": "extension.openPackageSource"
+        "command": "extension.openPackageSource",
+        "when": "editorLangId == javascript"
+      }, {
+        "command": "extension.openPackageSource",
+        "when": "editorLangId == json"
+      }, {
+        "command": "extension.openPackageSource",
+        "when": "editorLangId == typescript"
       }]
     }
   },
