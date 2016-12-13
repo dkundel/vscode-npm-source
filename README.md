@@ -36,7 +36,6 @@ code .
 
 # Backlog
 
-  - Add TypeScript 'import' syntax.
   - Add UTs
 
 # Contributors
