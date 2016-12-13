@@ -6,13 +6,10 @@ import * as Q from 'q';
 
 const exec = require('child_process').exec;
 const nodeModules = require('./node-native-modules');
-const requireRegEx = /require\(("|')[^.].*?("|')\)/g;
+const moduleRegEx = /require\(("|')[^.].*?("|')\)|import.*?('|")[^.].*?('|")/g;
 
 export function activate(context: ExtensionContext) {
-  
-	console.log('Extension "vscode-npm-source" is now active!'); 
-
-	let disposable = commands.registerCommand('extension.openPackageSource', () => {
+  let disposable = commands.registerCommand('extension.openPackageSource', () => {
     const editor = window.activeTextEditor;
     const selection = editor.selection;
     
@@ -25,15 +22,15 @@ export function activate(context: ExtensionContext) {
       selectedText = editor.document.getText(selection);
     }
     
-    packagesFound = selectedText.match(requireRegEx);
+    packagesFound = selectedText.match(moduleRegEx);
     
     if (!packagesFound) {
       selectedText = editor.document.getText(new Range(selection.start.line, 0, selection.end.line+1, 0));
-      packagesFound = selectedText.match(requireRegEx);
+      packagesFound = selectedText.match(moduleRegEx);
     }
     
     if (!packagesFound || packagesFound.length === 0) {
-      packagesFound = editor.document.getText().match(requireRegEx);
+      packagesFound = editor.document.getText().match(moduleRegEx);
     }
     
     if (packagesFound.length === 1) {
@@ -50,7 +47,7 @@ export function activate(context: ExtensionContext) {
         .then(openUrl)
         .catch(handleError);
     }
-	});
+  });
   
   function getPackageSourceUrl(packageName: string): Q.Promise<string> {
     let deferred: Q.Deferred<string> = Q.defer<string>();
@@ -80,6 +77,7 @@ export function activate(context: ExtensionContext) {
           
           if (responseJson.repository && responseJson.repository.url) {
             let url = responseJson.repository.url;
+            url = url.replace(/^git/, 'http');
             if (url.indexOf('http') === -1 ) {
               deferred.reject('Invalid project url');
               return;
@@ -143,7 +141,7 @@ export function activate(context: ExtensionContext) {
   }
   
   function getCleanPackageName(requireStatement: string): string {
-    return requireStatement.replace(/^require(\(|\s)("|')/, '').replace(/("|')\)?$/, '');
+    return requireStatement.replace(/^require(\(|\s)("|')/, '').replace(/^import.*?('|")/, '').replace(/("|')\)?$/, '').replace(/('|")$/, '');
   }
 	
 	context.subscriptions.push(disposable);
